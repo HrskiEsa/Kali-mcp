@@ -1,0 +1,15 @@
+{
+  "mcpServers": {
+    "kali-suite": {
+      "command": "docker",
+      "args": [
+        "run",
+        "--rm",
+        "-i",
+        "--network", "host",
+        "--privileged",
+        "mcp-kali-suite"
+      ]
+    }
+  }
+}

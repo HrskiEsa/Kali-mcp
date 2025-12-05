@@ -1,0 +1,39 @@
+FROM kalilinux/kali-rolling
+
+# Set environment variables to minimize interaction
+ENV DEBIAN_FRONTEND=noninteractive
+ENV TERM=xterm-256color
+
+# Update and install core dependencies
+# We install 'kali-linux-headless' for a solid base, then add specific requested tools
+# to ensure coverage without the overhead of the full GUI (which isn't useful for MCP).
+RUN apt-get update && apt-get -y upgrade && \
+    apt-get -y install --no-install-recommends \
+    python3 python3-pip python3-venv curl wget git unzip build-essential \
+    kali-linux-headless \
+    nmap masscan netdiscover recon-ng theharvester maltego dnsenum amass spiderfoot \
+    burpsuite nikto gobuster dirsearch sqlmap wfuzz whatweb ffuf arjun xsstrike commix tplmap wpscan droopescan joomscan \
+    hydra medusa john hashcat cewl crunch patator crowbar mimikatz evil-winrm crackmapexec \
+    aircrack-ng airodump-ng-ouiextractor reaver bettercap kismet wifite pixiewps bully airgeddon rfcat \
+    metasploit-framework beef-xss impacket-scripts responder powersploit veil shellter sliver \
+    psexec rubygems bloodhound sharphound \
+    ghidra radare2 apktool binwalk ltrace strace \
+    wireshark tcpdump ettercap chisel proxychains4 donut-shellcode \
+    autopsy volatility bulk-extractor foremost scalpel plaso \
+    netcat-traditional socat enum4linux smbmap wafw00f subfinder \
+    && apt-get clean && rm -rf /var/lib/apt/lists/*
+
+# Create a virtual environment for the MCP server
+RUN python3 -m venv /app/venv
+ENV PATH="/app/venv/bin:$PATH"
+
+# Install python dependencies for the server
+COPY requirements.txt /app/requirements.txt
+RUN pip install --no-cache-dir -r /app/requirements.txt
+
+# Copy server code
+WORKDIR /app
+COPY server.py /app/server.py
+
+# Default entrypoint
+ENTRYPOINT ["python", "server.py"]
